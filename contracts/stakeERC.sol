@@ -116,7 +116,7 @@ contract StakeERC20{
     }
 
     //remove stakeHolder
-    function removeStakeHolder(address _stakeHolder) public {
+    function removeStakeHolder(address _stakeHolder) public onlyOwner{
         require(_stakeHolder != address(0), "Address zero detected");
         
         if(isStakeholder[_stakeHolder]){
