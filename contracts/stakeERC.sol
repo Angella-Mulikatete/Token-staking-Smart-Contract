@@ -22,7 +22,7 @@ contract StakeERC20{
    
     constructor(address _tokenAddress, uint256 _withdrawDeadline) {
         depositTime = block.timestamp;
-        require(tokenAddress != address(0),"Invalid address");
+        // require(_tokenAddress != address(0),"Invalid address");
         tokenAddress = _tokenAddress;
         withdrawalDeadline = block.timestamp + (_withdrawDeadline * 60);
         owner = msg.sender;

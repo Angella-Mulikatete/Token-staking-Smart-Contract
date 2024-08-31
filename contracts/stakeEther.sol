@@ -35,7 +35,6 @@ contract StakeEth{
         _;
     }
 
-
     event stakeSuccess(address indexed owner, uint amount);
     event withdrawSuccess(uint indexed amount);
 
