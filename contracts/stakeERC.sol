@@ -12,15 +12,19 @@ contract StakeERC20{
     address public owner;
    
 
-    uint256 public initialTimestamp;//deposit
-    bool public timestampSet;
+    // uint256 public initialTimestamp;//deposit
+    // bool public timestampSet;
     uint256 public stakePeriod;
+    uint256 public withdrawalDeadline;
+    uint256 public depositTime;
      
 
    
-    constructor(address _tokenAddress) {
-        tokenAddress = _tokenAddress;
+    constructor(address _tokenAddress, uint256 _withdrawDeadline) {
+        depositTime = block.timestamp;
         require(tokenAddress != address(0),"Invalid address");
+        tokenAddress = _tokenAddress;
+        withdrawalDeadline = block.timestamp + (_withdrawDeadline * 60);
         owner = msg.sender;
     }
 
@@ -29,10 +33,16 @@ contract StakeERC20{
     // mapping(address => Stake) public stakes;
     mapping(address => uint256) private stakeholderIndex;
     mapping(address => bool) private isStakeholder;
+
     mapping(address => uint) balances;
     mapping(address => uint) timeOfDeposit;
 
     event stakedSuccessfully(address indexed addressFrom, uint256 indexed amount );
+
+    modifier hasStakingPeriodEnded(bool){
+        require(block.timestamp <= withdrawalDeadline, "No more Staking");
+        _;
+    }
 
     modifier checkAddress(address _address){
          require(_address != address(0), "Address zero detected");
@@ -44,42 +54,8 @@ contract StakeERC20{
         _;
     }
 
-    //checking if an address is a stakeholder
-    function isStakeHolder(address _address) public view checkAddress(_address) returns(bool){
-        return isStakeholder[_address];
-    }
-
-    //add stakeholder
-    function addStakeHolder(address _stakeHolder) public checkAddress(_stakeHolder) {
-        if(!isStakeHolder(_stakeHolder)){
-            stakeHolders.push(_stakeHolder);
-            stakeholderIndex[_stakeHolder] = stakeHolders.length - 1;
-        }
-    }
-
-    //remove stakeHolder
-    function removeStakeHolder(address _stakeHolder) public {
-        require(_stakeHolder != address(0), "Address zero detected");
-        
-        if(isStakeholder[_stakeHolder]){
-            uint256 index = stakeholderIndex[_stakeHolder];
-            stakeHolders[index] = stakeHolders[stakeHolders.length - 1];
-            stakeholderIndex[stakeHolders[index]] = index;
-            stakeHolders.pop();
-            isStakeholder[_stakeHolder] = false;
-
-        }
-    }
-
-    //check your balance 
-
-    function getMyBalance() external view returns(uint256) {
-        return balances[msg.sender];
-    }
-
-
     //stake your tokens
-    function stakeToken(uint256 _amount) external {
+    function stakeToken(uint256 _amount) external hasStakingPeriodEnded(false) {
         require(_amount > 0, "stake higher than zero");
         require(msg.sender != address(0), "address zero detected");
 
@@ -125,6 +101,40 @@ contract StakeERC20{
         IERC20(tokenAddress).safeTransfer(msg.sender, totalAmount);
 
     }
+
+      //checking if an address is a stakeholder
+    function isStakeHolder(address _address) public view checkAddress(_address) returns(bool){
+        return isStakeholder[_address];
+    }
+
+    //add stakeholder
+    function addStakeHolder(address _stakeHolder) public checkAddress(_stakeHolder) {
+        if(!isStakeHolder(_stakeHolder)){
+            stakeHolders.push(_stakeHolder);
+            stakeholderIndex[_stakeHolder] = stakeHolders.length - 1;
+        }
+    }
+
+    //remove stakeHolder
+    function removeStakeHolder(address _stakeHolder) public {
+        require(_stakeHolder != address(0), "Address zero detected");
+        
+        if(isStakeholder[_stakeHolder]){
+            uint256 index = stakeholderIndex[_stakeHolder];
+            stakeHolders[index] = stakeHolders[stakeHolders.length - 1];
+            stakeholderIndex[stakeHolders[index]] = index;
+            stakeHolders.pop();
+            isStakeholder[_stakeHolder] = false;
+
+        }
+    }
+
+    //check your balance 
+
+    function getMyBalance() external view returns(uint256) {
+        return balances[msg.sender];
+    }
+
 
     function updateStakingDuration(uint _newStakingDuration) internal {
         stakePeriod = _newStakingDuration;
