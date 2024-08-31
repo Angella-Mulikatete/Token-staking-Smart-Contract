@@ -10,7 +10,7 @@ const StakeEthModule = buildModule("StakeEthModule", (m) => {
 
   // Deploy the StakeEth contract with the provided parameters
   const stakeEth = m.contract("StakeEth", [withdrawDeadline, rewardRate]);
-
+  
   return { stakeEth };
 });
 
