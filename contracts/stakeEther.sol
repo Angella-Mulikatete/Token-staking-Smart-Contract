@@ -63,7 +63,7 @@ contract StakeEth{
         return balances[msg.sender];
     }
 
-    function withdraw(uint256 _amount) external payable onlyOwner returns(uint256) {
+    function withdraw(uint256 _amount) external  onlyOwner returns(uint256) {
         require(msg.sender != address(0), "zero address detected");
         require(balances[msg.sender] >= _amount, "INSUFFICIENT FUNDS");
         
