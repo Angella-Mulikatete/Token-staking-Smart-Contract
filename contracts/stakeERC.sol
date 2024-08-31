@@ -70,21 +70,21 @@ contract StakeERC20{
     }
 
     function calculateReward( uint256 _amount) private  view returns(uint256){
-        uint256 stakingTime = block.timestamp - timeOfDeposit[msg.sender];
+        uint256 stakingTime = withdrawalDeadline - timeOfDeposit[msg.sender];
 
-        if(stakingTime > stakePeriod){
+        if(stakingTime > withdrawalDeadline){
             return 0;
         }
 
-        uint256 rewardRate = (_amount)/(stakePeriod);
-        uint reward = (_amount * rewardRate * stakingTime) / (stakePeriod * 100);
+        uint256 rewardRate = (_amount)/(stakingTime);
+        uint reward = (_amount * rewardRate * stakingTime) / (stakingTime * 100);
         return reward;
 
     }
 
     function withdrawTime() external view returns(uint256){
 
-        if(( timeOfDeposit[msg.sender] *60) > stakePeriod){
+        if(( timeOfDeposit[msg.sender] *60) > withdrawalDeadline){
             return 0;
         }else{
             return (block.timestamp - (timeOfDeposit[msg.sender] * 60));
